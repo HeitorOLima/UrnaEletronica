@@ -1,6 +1,7 @@
 ﻿using App.Urna.Eletronica.Data;
 using App.Urna.Eletronica.Model;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,8 +19,16 @@ namespace App.Urna.Eletronica.Repository
 
         public void InserirCandidato(CandidateModel Candidato)
         {
-            _DbContext.Candidatos.Add(Candidato);
-            _DbContext.SaveChanges();
+            Candidato.DtRegistro = DateTime.Now;
+
+            try
+            {
+                _DbContext.Candidatos.Add(Candidato);
+                _DbContext.SaveChanges();
+            }catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public bool DeletarCandidato(int Id)
@@ -35,9 +44,8 @@ namespace App.Urna.Eletronica.Repository
                 _DbContext.SaveChanges();
                 return true;
             }
-
-            
         }
+
         public CandidateModel BuscarCandidatoPorId(int Id)
         {
             return _DbContext.Candidatos.Find(Id);

@@ -2,8 +2,7 @@
 using App.Urna.Eletronica.Model;
 using App.Urna.Eletronica.Repository;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System;
 
 namespace App.Urna.Eletronica.Controllers
 {
@@ -33,11 +32,16 @@ namespace App.Urna.Eletronica.Controllers
                 }
                 else
                 {
-
-                    Candidato.DtRegistro = System.DateTime.Now.Date;
-                    _candidateRepository.InserirCandidato(Candidato);
-                    var uri = Url.Action("Recuperar", new {id = Candidato.Id});
-                    return Created(uri ,Candidato); //201
+                    try
+                    {
+                        Candidato.DtRegistro = DateTime.Now.Date;
+                        _candidateRepository.InserirCandidato(Candidato);
+                        var uri = Url.Action("Recuperar", new {id = Candidato.LegendaPartido});
+                        return Created(uri ,Candidato); //201
+                    }catch(Exception ex)
+                    {
+                        return BadRequest(ex.Message);   
+                    }
                 }
             }
             else
@@ -52,6 +56,7 @@ namespace App.Urna.Eletronica.Controllers
         {
             try
             {
+
                 if (_candidateRepository.DeletarCandidato(IdCandidato))
                 {
                     return NoContent(); //204

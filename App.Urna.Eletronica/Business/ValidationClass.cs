@@ -15,9 +15,21 @@ namespace App.Urna.Eletronica.Business
 
         public bool ValidarCandidatoExistente(CandidateModel Candidato)
         {
-            var ResultadoBusca = _candidateRepository.BuscarCandidatoPorLegenda(Candidato.LegendaPartido);
 
-            if (ResultadoBusca == null)
+            if (_candidateRepository.BuscarCandidatoPorLegenda(Candidato.LegendaPartido) == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public bool ValidarCandidatoPorLegenda(int LegendaPartido)
+        {
+
+            if (_candidateRepository.BuscarCandidatoPorLegenda(LegendaPartido) == null)
             {
                 return false;
             }
@@ -37,6 +49,21 @@ namespace App.Urna.Eletronica.Business
             {
                 return true;
             }
+        }
+
+        public bool ValidarVoto(VoteModel Voto)
+        {
+            if(Voto.IdCandidato == 0)
+            {
+                return false;
+            }
+
+            if(Voto.DtVoto == null)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
