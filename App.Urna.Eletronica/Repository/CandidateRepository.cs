@@ -4,63 +4,49 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Repository
 {
     public class CandidateRepository : ICandidateRepository
     {
-        private readonly UrnaEletronicaDbContext _DbContext;
+        private readonly UrnaEletronicaDbContext _dbContext;
 
-        public IQueryable<CandidateModel> All => _DbContext.Set<CandidateModel>().AsQueryable();
         public CandidateRepository(UrnaEletronicaDbContext DbContext)
         {
-            _DbContext = DbContext;
+            _dbContext = DbContext;
         }
 
-        public void InserirCandidato(CandidateModel Candidato)
+        public async Task<CandidateModel> InserirCandidato(CandidateModel Candidato)
         {
-            Candidato.DtRegistro = DateTime.Now;
+            await _dbContext.Candidatos.AddAsync(Candidato);
+            await _dbContext.SaveChangesAsync();
 
-            try
-            {
-                _DbContext.Candidatos.Add(Candidato);
-                _DbContext.SaveChanges();
-            }catch (Exception ex)
-            {
-                throw ex;
-            }
+            return Candidato;
         }
-
-        public bool DeletarCandidato(int Id)
+        
+        public async Task DeletarCandidato(int Id)
         {
-            var Candidato = _DbContext.Candidatos.Find(Id);
-            if(Candidato == null)
-            {
-                return false;
-            }
-            else
-            {
-                _DbContext.Candidatos.Remove(Candidato);
-                _DbContext.SaveChanges();
-                return true;
-            }
+            var Candidato = await _dbContext.Candidatos.FindAsync(Id);
+         
+            _dbContext.Candidatos.Remove(Candidato);
+            _dbContext.SaveChanges();
         }
-
-        public CandidateModel BuscarCandidatoPorId(int Id)
+        
+        public async Task<CandidateModel> BuscarCandidatoPorId(int Id)
         {
-            return _DbContext.Candidatos.Find(Id);
+            return await _dbContext.Candidatos.FindAsync(Id);
         }
-
-        public CandidateModel BuscarCandidatoPorLegenda(int LegendaPartido)
+        
+        public async Task<CandidateModel> BuscarCandidatoPorLegenda(int LegendaPartido)
         {
+            return await _dbContext.Candidatos.Where(x=> x.LegendaPartido == LegendaPartido).FirstOrDefaultAsync();
             
-            var Resultado = _DbContext.Candidatos.Where(x=> x.LegendaPartido == LegendaPartido).FirstOrDefault();
-            return Resultado;
         }
-
-        public IEnumerable<CandidateModel> BuscarCandidatos()
+        
+        public async Task<IEnumerable<CandidateModel>> BuscarCandidatos()
         {
-            return _DbContext.Candidatos.ToList();
+            return await _dbContext.Candidatos.ToListAsync();
         } 
     }
 }

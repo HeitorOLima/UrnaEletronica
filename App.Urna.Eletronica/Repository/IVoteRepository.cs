@@ -1,11 +1,12 @@
 ﻿using App.Urna.Eletronica.Model;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Repository
 {
     public interface IVoteRepository
     {
-        IEnumerable<CandidateModel> RecuperarVotosPorCandidato();
-        void Votar(VoteModel Voto);
+        Task<VoteModel> Votar(VoteModel Voto);
+        Task<IEnumerable<CandidateModel>> RecuperarVotosPorCandidato();
     }
 }

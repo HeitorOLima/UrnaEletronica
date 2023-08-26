@@ -3,6 +3,8 @@ using App.Urna.Eletronica.Model;
 using App.Urna.Eletronica.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Controllers
 {
@@ -19,68 +21,50 @@ namespace App.Urna.Eletronica.Controllers
             _validationRules = validationRules;
         }
 
-        // POST /Candidates
         [HttpPost("candidate")]
-        public ActionResult RegistrarCandidato([FromBody] CandidateModel Candidato)
+        public async Task<IActionResult> RegistrarCandidato([FromBody] CandidateModel Candidato)
         {
 
-            if (!(Candidato == null))
+            if (Candidato is null)
+                return BadRequest("Erro na requisição. O corpo da requisição está vazio");
+
+            if (await _validationRules.ValidarCandidatoExistente(Candidato))
+                return BadRequest("Já existe um candidato cadastrado com essa Legenda.");
+
+            try
             {
-                if (_validationRules.ValidarCandidatoExistente(Candidato))
-                {
-                    return BadRequest("Já existe um candidato cadastrado com essa Legenda.");
-                }
-                else
-                {
-                    try
-                    {
-                        Candidato.DtRegistro = DateTime.Now.Date;
-                        _candidateRepository.InserirCandidato(Candidato);
-                        var uri = Url.Action("Recuperar", new {id = Candidato.LegendaPartido});
-                        return Created(uri ,Candidato); //201
-                    }catch(Exception ex)
-                    {
-                        return BadRequest(ex.Message);   
-                    }
-                }
+                Candidato.DtRegistro = DateTime.Now.Date;
+                var registedCandidate = await _candidateRepository.InserirCandidato(Candidato);
+                return Ok(registedCandidate);
             }
-            else
+            catch(Exception ex)
             {
-                return BadRequest(); //400
+                return BadRequest($"Erro ao inserir o candidato no banco de dados: {ex.Message}");   
             }
         }
 
-        // DELETE api/<CandidatesController>/5
         [HttpDelete("candidate/{IdCandidato}")]
-        public ActionResult DeletarCandidato(int IdCandidato)
+        public async Task<IActionResult> DeletarCandidato(int IdCandidato)
         {
             try
             {
-
-                if (_candidateRepository.DeletarCandidato(IdCandidato))
-                {
-                    return NoContent(); //204
-                }
-                else
-                {
-                    return NotFound("Não foi localizado um candidato com esse Id para realizar a Deleção");
-                } 
+                await _candidateRepository.DeletarCandidato(IdCandidato);
+                return NoContent();
             }
             catch
             {
-                return BadRequest(); //400
+                return NotFound("O candidato que não está sendo removido não foi encontrado no banco."); 
             }
         }
 
         [HttpGet("candidate/recover/{id}")]
-        public IActionResult Recuperar(int id)
+        public async Task<IActionResult> Recuperar(int id)
         {
-            var model = _candidateRepository.BuscarCandidatoPorId(id);
-            if (model == null)
-            {
-                return NotFound(); //404
-            }
-            return Ok(model); //200
+            var model = await _candidateRepository.BuscarCandidatoPorId(id);
+            if (model is null)
+                return NotFound(); 
+            
+            return Ok(model);
         }
     }
 }

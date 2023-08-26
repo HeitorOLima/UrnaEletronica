@@ -1,6 +1,7 @@
 ﻿using App.Urna.Eletronica.Data;
 using App.Urna.Eletronica.Model;
 using App.Urna.Eletronica.Repository;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Business
 {
@@ -13,57 +14,15 @@ namespace App.Urna.Eletronica.Business
             _candidateRepository = candidateRepository;
         }
 
-        public bool ValidarCandidatoExistente(CandidateModel Candidato)
+        public async Task<bool> ValidarCandidatoExistente(CandidateModel Candidato)
         {
-
-            if (_candidateRepository.BuscarCandidatoPorLegenda(Candidato.LegendaPartido) == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return await _candidateRepository.BuscarCandidatoPorLegenda(Candidato.LegendaPartido) is null;
         }
 
-        public bool ValidarCandidatoPorLegenda(int LegendaPartido)
+        public async Task<bool> ValidarCandidatoPorLegenda(int LegendaPartido)
         {
-
-            if (_candidateRepository.BuscarCandidatoPorLegenda(LegendaPartido) == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return await _candidateRepository.BuscarCandidatoPorLegenda(LegendaPartido) is null;
         }
-
-        public bool ValidarVotoBranco(VoteModel Voto)
-        {
-            if(Voto == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        public bool ValidarVoto(VoteModel Voto)
-        {
-            if(Voto.IdCandidato == 0)
-            {
-                return false;
-            }
-
-            if(Voto.DtVoto == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
+       
     }
 }

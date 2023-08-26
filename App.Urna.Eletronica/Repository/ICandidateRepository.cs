@@ -2,15 +2,20 @@
 using App.Urna.Eletronica.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Repository
 {
     public interface ICandidateRepository
     {
-        bool DeletarCandidato(int IdCandidato);
-        void InserirCandidato(CandidateModel Candidato);
-        CandidateModel BuscarCandidatoPorId(int IdCandidato);
-        CandidateModel BuscarCandidatoPorLegenda(int LegendaPartido);
-        IEnumerable<CandidateModel> BuscarCandidatos();
+		Task<CandidateModel> InserirCandidato(CandidateModel Candidato);
+        
+        Task DeletarCandidato(int IdCandidato);
+        
+        Task<CandidateModel> BuscarCandidatoPorId(int IdCandidato);
+        
+        Task<CandidateModel> BuscarCandidatoPorLegenda(int LegendaPartido);
+        
+        Task<IEnumerable<CandidateModel>> BuscarCandidatos();
     }
 }

@@ -1,14 +1,13 @@
 ﻿using App.Urna.Eletronica.Data;
 using App.Urna.Eletronica.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Repository
 {
-    public class VoteRepository : IVoteRepository
+	public class VoteRepository : IVoteRepository
     {
         private readonly UrnaEletronicaDbContext _DbContext;
 
@@ -17,17 +16,17 @@ namespace App.Urna.Eletronica.Repository
             _DbContext = DbContext;
         }
 
-
-        public void Votar(VoteModel Voto)
+        public async Task<VoteModel> Votar(VoteModel Voto)
         {
-            Voto.DtVoto = DateTime.Now;
-            _DbContext.Votos.Add(Voto);
-            _DbContext.SaveChanges();
+            await _DbContext.Votos.AddAsync(Voto);
+            await _DbContext.SaveChangesAsync();
+
+            return Voto;
         }
 
-        public IEnumerable<CandidateModel> RecuperarVotosPorCandidato()
+        public async Task<IEnumerable<CandidateModel>> RecuperarVotosPorCandidato()
         {
-            return _DbContext.Candidatos.Include(x => x.Votes).ToList().OrderByDescending(x=> x.Votes.Count);
+            return await _DbContext.Candidatos.Include(x => x.Votes).OrderByDescending(x=> x.Votes.Count).ToListAsync();
         }
     }
 }

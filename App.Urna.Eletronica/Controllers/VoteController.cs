@@ -3,6 +3,7 @@ using App.Urna.Eletronica.Model;
 using App.Urna.Eletronica.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace App.Urna.Eletronica.Controllers
 {
@@ -22,9 +23,9 @@ namespace App.Urna.Eletronica.Controllers
 
         // Post: VotesController/{LegendaPartido}
         [HttpPost("vote")]
-        public ActionResult Votar([FromBody] VoteModel Voto)
+        public async Task<IActionResult> Votar([FromBody] VoteModel Voto)
         {
-            if (_validations.ValidarVoto(Voto) && _validations.ValidarCandidatoPorLegenda(Voto.IdCandidato))
+            if (await _validations.ValidarCandidatoPorLegenda(Voto.IdCandidato))
             {
                 _voteRepository.Votar(Voto);
                 return Ok("O voto foi computado com sucesso!");
