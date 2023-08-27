@@ -21,31 +21,38 @@ namespace App.Urna.Eletronica.Controllers
             _validations = validations;
         }
 
-        // Post: VotesController/{LegendaPartido}
         [HttpPost("vote")]
         public async Task<IActionResult> Votar([FromBody] VoteModel Voto)
         {
-            if (await _validations.ValidarCandidatoPorLegenda(Voto.IdCandidato))
-            {
-                _voteRepository.Votar(Voto);
+            if(Voto is null)
                 return Ok("O voto foi computado com sucesso!");
 
-            }
-            else
+            try
             {
-                Voto.IdCandidato = 98;
-                _voteRepository.Votar(Voto);
+                if (await _validations.ValidarCandidatoPorLegenda(Voto.IdCandidato))
+                    await _voteRepository.Votar(Voto);
+            
                 return Ok("O voto foi computado com sucesso!");
+                            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao computar voto: {ex.Message}");
             }
         }
 
-        // GET VotesController/
         [HttpGet("votes")]
         public ActionResult RecuperarVotosPorCandidato()
         {
-            var Candidatos = _voteRepository.RecuperarVotosPorCandidato();
-            
-            return Ok(Candidatos);
+            try
+            {
+                var Candidatos = _voteRepository.RecuperarVotosPorCandidato();
+             
+                return Ok(Candidatos);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao recuperar votos: {ex.Message}");
+            }
         }
     }
 }
